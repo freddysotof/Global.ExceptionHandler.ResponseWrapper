@@ -1,7 +1,9 @@
 ﻿using Global.ExceptionHandler.ResponseWrapper.Exceptions;
+using Global.ExceptionHandler.ResponseWrapper.Middlewares;
 using Global.ExceptionHandler.ResponseWrapper.Models;
 using Global.ExceptionHandler.ResponseWrapper.Wrappers;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Net;
 using KeyNotFoundException = Global.ExceptionHandler.ResponseWrapper.Exceptions.KeyNotFoundException;
@@ -18,14 +20,15 @@ namespace Global.ExceptionHandler.ResponseWrapper.Middleware
         /// Request Delegate field to invoke HTTP Context
         /// </summary>
         private readonly RequestDelegate _next;
-
+        private readonly ILogger<LoggingMiddleware> _logger;
         /// <summary>
         /// The Globar Error Handler Middleware Constructor
         /// </summary>
         /// <param name="next">The Request Delegate</param>
-        public GlobalErrorHandlingMiddleware(RequestDelegate next)
+        public GlobalErrorHandlingMiddleware(RequestDelegate next, ILogger<LoggingMiddleware> loggerManager)
         {
             _next = next;
+            _logger = loggerManager;
         }
 
 
@@ -36,6 +39,7 @@ namespace Global.ExceptionHandler.ResponseWrapper.Middleware
         /// <returns>Response</returns>
         public async Task Invoke(HttpContext context)
         {
+            _logger.Log(LogLevel.Information, "Initating global error handler");
             Stream originalBodyStream = null;
             HttpResponse response = context.Response;
             HttpStatusCode status;
@@ -52,6 +56,7 @@ namespace Global.ExceptionHandler.ResponseWrapper.Middleware
             {
                 //Create a new memory stream...
                 await using var responseBody = new MemoryStream();
+
                 //...and use that for the temporary response body
                 response.Body = responseBody;
 
@@ -64,28 +69,23 @@ namespace Global.ExceptionHandler.ResponseWrapper.Middleware
                 //We need to reset the reader for the response so that the client can read it.
                 response.Body.Seek(0, SeekOrigin.Begin);
 
-                try
-                {
-                    // Invoking Customizations Method to handle Custom Formatted Response
-                    await HandleExceptionAsync(context, ex);
+                // Invoking Customizations Method to handle Custom Formatted Response
+                int formattedBodyLength = await HandleExceptionAsync(context, ex);
+
+                // Set the current Stream Content Length before copying in original stream
+                responseBody.SetLength(formattedBodyLength);
 
 
-                    // Set the current Stream in Initial Position before copying in original stream
-                    responseBody.Position = 0;
+                // Set the current Stream in Initial Position before copying in original stream
+                responseBody.Position = 0;
 
 
-                    //Copy the contents of the new memory stream (which contains the response) to the original stream, which is then returned to the client.
-                    await responseBody.CopyToAsync(originalBodyStream);
-                }
-                catch (Exception e)
-                {
+                //Copy the contents of the new memory stream (which contains the response) to the original stream, which is then returned to the client.
+                await responseBody.CopyToAsync(originalBodyStream);
 
-                    throw;
-                }
-            
             }
         }
-        private async Task HandleExceptionAsync(HttpContext context,Exception ex)
+        private async Task<int> HandleExceptionAsync(HttpContext context,Exception ex)
         {
             var response = context.Response;
 
@@ -127,8 +127,12 @@ namespace Global.ExceptionHandler.ResponseWrapper.Middleware
             // Set the StatusCode Header of the response
             response.StatusCode = (int)responseWrapper.StatusCode;
 
+            // Set the Content Length Header of the response
+            response.ContentLength= (int)formattedResponse.Length;
+
             //Format the response from the server
             await response.WriteAsync(formattedResponse);
+            return formattedResponse.Length;
         }
     }
 }

@@ -8,7 +8,7 @@ namespace Global.ExceptionHandler.ResponseWrapper.Middleware
     /// <summary>
     /// Response Wrapper Middleware to Request Delegate and handles Response Customizations.
     /// </summary>
-    public class ResponseWrapperMiddleware
+    public class PaginationResponseWrapperMiddleware
     {
         /// <summary>
         /// Request Delegate field to invoke HTTP Context
@@ -19,7 +19,7 @@ namespace Global.ExceptionHandler.ResponseWrapper.Middleware
         /// The Response Wrapper Middleware Constructor
         /// </summary>
         /// <param name="next">The Request Delegate</param>
-        public ResponseWrapperMiddleware(RequestDelegate next) => _next = next;
+        public PaginationResponseWrapperMiddleware(RequestDelegate next) => _next = next;
 
         /// <summary>
         /// Invoke Method for the HttpContext
@@ -79,7 +79,7 @@ namespace Global.ExceptionHandler.ResponseWrapper.Middleware
             if (body.Length > 0)
             {
                 // Invoking Customizations Method to handle Custom Formatted Response
-                var responseHandler = _wrapperService.WrapResponse(body);
+                var responseHandler = _wrapperService.WrapPagedResponse(body);
 
 
                 string formattedBody = responseHandler.ToString();

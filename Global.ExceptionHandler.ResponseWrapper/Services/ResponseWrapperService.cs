@@ -21,14 +21,17 @@ namespace Global.ExceptionHandler.ResponseWrapper.Services
             _contextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
         }
 
-        public SuccessResponseWrapper WrapPagedResponse(string response, HttpContext context)
+        public SuccessResponseWrapper WrapPagedResponse(string responseBody)
         {
-            var requestUrl = context.Request.GetDisplayUrl();
-            var status = response != null;
-            var httpStatusCode = (HttpStatusCode)context.Response.StatusCode;
-            if (!response.TryParseJson<List<object>>(out List<object> data))
+            var response =_contextAccessor.HttpContext.Response;
+            var request = _contextAccessor.HttpContext.Request;
+
+            var requestUrl = request.GetDisplayUrl();
+            var status = responseBody != null;
+            var httpStatusCode = (HttpStatusCode)response.StatusCode;
+            if (!responseBody.TryParseJson<List<object>>(out List<object> data))
             {
-                return new SuccessResponseWrapper( httpStatusCode, JsonConvert.DeserializeObject<object>(response));
+                return new SuccessResponseWrapper( httpStatusCode, JsonConvert.DeserializeObject<object>(responseBody));
             }
            
 
@@ -36,8 +39,8 @@ namespace Global.ExceptionHandler.ResponseWrapper.Services
             int? limit=null;
             int offset=0;
             string sort = null;
-            string route = context.Request.Path.Value;
-            var queryParams = context.Request.Query;
+            string route = request.Path.Value;
+            var queryParams = request.Query;
             if(queryParams.ContainsKey("limit"))
                 limit = int.Parse(queryParams["limit"]);
 
@@ -49,7 +52,7 @@ namespace Global.ExceptionHandler.ResponseWrapper.Services
          
             var validFilter = new PaginationFilter(limit, offset);
             if (!validFilter.Pageable || validFilter.PageSize==0)
-                return new SuccessResponseWrapper( httpStatusCode, JsonConvert.DeserializeObject<object>(response));
+                return new SuccessResponseWrapper( httpStatusCode, JsonConvert.DeserializeObject<object>(responseBody));
             else
             {
                 var totalRecords = data.Count();
@@ -84,11 +87,12 @@ namespace Global.ExceptionHandler.ResponseWrapper.Services
 
         }
 
-        public SuccessResponseWrapper WrapResponse(string response, HttpContext context)
+        public SuccessResponseWrapper WrapResponse(string responseBody)
         {
-            var status = response != null;
-            var httpStatusCode = (HttpStatusCode)context.Response.StatusCode;
-            return new SuccessResponseWrapper(httpStatusCode, JsonConvert.DeserializeObject<object>(response));
+            var response = _contextAccessor.HttpContext.Response;
+            var status = responseBody != null;
+            var httpStatusCode = (HttpStatusCode)response.StatusCode;
+            return new SuccessResponseWrapper(httpStatusCode, JsonConvert.DeserializeObject<object>(responseBody));
         }
 
    

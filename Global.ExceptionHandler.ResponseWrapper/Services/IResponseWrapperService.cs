@@ -5,8 +5,8 @@ namespace Global.ExceptionHandler.ResponseWrapper.Services
 {
     public interface IResponseWrapperService
     {
-        SuccessResponseWrapper WrapPagedResponse(string response, HttpContext context);
-        SuccessResponseWrapper WrapResponse(string response, HttpContext context);
+        SuccessResponseWrapper WrapPagedResponse(string response);
+        SuccessResponseWrapper WrapResponse(string response);
         //PagedResponse<DestinationModel> PagedResponse(List<SourceData> rawData, int? limit, int offset);
     }
 }

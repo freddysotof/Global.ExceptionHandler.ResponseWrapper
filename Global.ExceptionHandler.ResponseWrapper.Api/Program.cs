@@ -5,6 +5,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+var middlewareSettings = builder.Configuration.GetSection("MiddlewareSettings").Get<MiddlewareSettings>();
+
 builder.Services.AddControllers();
 builder.Services.ConfigureCustomModelStateValidation();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -13,6 +15,12 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddResponseWrapper();
+
+builder.Services.AddLogging(config =>
+{
+    config.AddConsole();
+    config.AddDebug();
+});
 
 var app = builder.Build();
 
@@ -27,7 +35,19 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
-app.UseGlobalErrorHandlerAndResponseWrapperAndModelValidationMiddleware();
+
+app.UseGlobalErrorHandlerMiddleware();
+app.UseLoggingMiddleware();
+if (middlewareSettings.UsePaginationResponseWrapperMiddleware)
+    app.UsePaginationResponseWrapperMiddleware();
+else
+    app.UseResponseWrapperMiddleware();
+
+app.UseModelStateValidationMiddleware();
+
+//app.UseGlobalErrorHandlerAndResponseWrapperAndModelValidationMiddleware();
+
+
 
 app.MapControllers();
 
