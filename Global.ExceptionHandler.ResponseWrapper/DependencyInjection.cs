@@ -26,7 +26,7 @@ namespace Global.ExceptionHandler.ResponseWrapper
                 return new PageUriService(uri);
             });
 
-            services.AddSingleton(typeof(IResponseWrapperService), typeof(ResponseWrapperService));
+            services.AddSingleton(typeof(IResponseWrapperService<>), typeof(ResponseWrapperService<>));
 
         }
 

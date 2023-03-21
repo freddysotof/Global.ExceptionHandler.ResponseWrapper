@@ -1,4 +1,4 @@
-﻿namespace Global.ExceptionHandler.ResponseWrapper
+﻿namespace Global.ExceptionHandler.ResponseWrapper.Config
 {
     public class MiddlewareSettings
     {

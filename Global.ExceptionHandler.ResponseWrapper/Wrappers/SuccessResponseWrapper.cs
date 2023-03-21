@@ -3,11 +3,12 @@ using System.Net;
 
 namespace Global.ExceptionHandler.ResponseWrapper.Wrappers
 {
-    public class SuccessResponseWrapper : GenericResponseWrapper
+    public class SuccessResponseWrapper<T> : GenericResponseWrapper
+        where T : class
     {
         public SuccessResponseWrapper()
         {
-            Data = new List<object>();
+            //Data = new List<object>();
             Messages = new List<ResponseMessage>();
         }
         public SuccessResponseWrapper(HttpStatusCode httpStatusCode, ResponseMessage message)
@@ -19,13 +20,13 @@ namespace Global.ExceptionHandler.ResponseWrapper.Wrappers
             StatusCode = httpStatusCode;
             IsSuccessStatusCode = true;
         }
-        public SuccessResponseWrapper(HttpStatusCode httpStatusCode, object data)
+        public SuccessResponseWrapper(HttpStatusCode httpStatusCode, T data)
         {
             Data = data;
             StatusCode = httpStatusCode;
             IsSuccessStatusCode = true;
         }
-        public SuccessResponseWrapper(HttpStatusCode httpStatusCode, object data, ResponseMessage message)
+        public SuccessResponseWrapper(HttpStatusCode httpStatusCode, T data, ResponseMessage message)
         {
             Data = data;
             StatusCode = httpStatusCode;
@@ -41,36 +42,34 @@ namespace Global.ExceptionHandler.ResponseWrapper.Wrappers
             StatusCode = httpStatusCode;
             IsSuccessStatusCode = true;
         }
-        public SuccessResponseWrapper(object obj)
+        public SuccessResponseWrapper(T obj)
         {
-            //AppCode = appCode;
-
-            if (obj != null)
-                Data = new List<object> { obj };
+  
+            //if (obj != null)
+            //    Data = new List<object> { obj };
 
             Messages = new List<ResponseMessage>();
 
         }
-        public SuccessResponseWrapper(IEnumerable<object> records)
+        public SuccessResponseWrapper(IEnumerable<T> records)
         {
-            Data = records?.ToList();
+            //Data = records?.ToList();
 
             Messages = new List<ResponseMessage>();
 
         }
       
-        public SuccessResponseWrapper(object obj = null, IEnumerable<object> records = null, ResponseMessage messageHandler = null,
+        public SuccessResponseWrapper(T obj = null, IEnumerable<T> records = null, ResponseMessage messageHandler = null,
             ResponseError errorResponse = null)
         {
-            //AppCode = appCode;
 
-            if (obj != null)
-                Data = new List<object> { obj };
-            else
-                Data = records?.ToList();
+            //if (obj != null)
+            //    Data = new List<T> { obj };
+            //else
+            //    Data = records?.ToList();
 
-            if (Data == null)
-                Data = new List<object>();
+            //if (Data == null)
+            //    Data = new List<T>();
 
             if (messageHandler != null)
                 Messages = new List<ResponseMessage> { messageHandler };
@@ -79,13 +78,13 @@ namespace Global.ExceptionHandler.ResponseWrapper.Wrappers
 
         }
 
-        public SuccessResponseWrapper(IEnumerable<object> records, ResponseMessage messageHandler = null)
+        public SuccessResponseWrapper(IEnumerable<T> records, ResponseMessage messageHandler = null)
         {
-            if (records != null)
-                Data = records?.ToList();
+            //if (records != null)
+            //    Data = records?.ToList();
 
-            if (Data == null)
-                Data = new List<object>();
+            //if (Data == null)
+            //    Data = new List<T>();
 
 
 
@@ -106,7 +105,7 @@ namespace Global.ExceptionHandler.ResponseWrapper.Wrappers
         {
             Messages = messageHandler;
         }
-        public object Data { get; set; }
+        public T Data { get; set; }
         public List<ResponseMessage> Messages { get; set; }
     }
 }

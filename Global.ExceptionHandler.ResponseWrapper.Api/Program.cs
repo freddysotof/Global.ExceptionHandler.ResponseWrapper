@@ -1,5 +1,6 @@
 using Global.ExceptionHandler.ResponseWrapper.Extensions;
 using Global.ExceptionHandler.ResponseWrapper;
+using Global.ExceptionHandler.ResponseWrapper.Config;
 
 var builder = WebApplication.CreateBuilder(args);
 

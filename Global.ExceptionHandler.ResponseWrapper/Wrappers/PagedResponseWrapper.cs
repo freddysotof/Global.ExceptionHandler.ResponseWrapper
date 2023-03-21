@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace Global.ExceptionHandler.ResponseWrapper.Wrappers
 {
-    public class PagedResponseWrapper : SuccessResponseWrapper
+    public class PagedResponseWrapper<T> : SuccessResponseWrapper<T>
+        where T : class
     {
         public int PageNumber { get; set; }
         public int PageSize { get; set; }
@@ -16,7 +17,7 @@ namespace Global.ExceptionHandler.ResponseWrapper.Wrappers
         public int TotalRecords { get; set; }
         public Uri NextPage { get; set; }
         public Uri PreviousPage { get; set; }
-        public PagedResponseWrapper(object data, int pageNumber, int pageSize)
+        public PagedResponseWrapper(T data, int pageNumber, int pageSize)
         {
             PageNumber = pageNumber;
             PageSize = pageSize;

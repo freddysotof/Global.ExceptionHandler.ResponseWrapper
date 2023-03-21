@@ -10,7 +10,8 @@ using System.Net;
 namespace Global.ExceptionHandler.ResponseWrapper.Services
 {
 
-    public class ResponseWrapperService: IResponseWrapperService
+    public class ResponseWrapperService<T> : IResponseWrapperService<T>
+        where T : class
     {
         private readonly IPageUriService _pageUriService;
         private readonly IHttpContextAccessor _contextAccessor;
@@ -21,27 +22,27 @@ namespace Global.ExceptionHandler.ResponseWrapper.Services
             _contextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
         }
 
-        public SuccessResponseWrapper WrapPagedResponse(string responseBody)
+        public SuccessResponseWrapper<T> WrapPagedResponse(string responseBody)
         {
-            var response =_contextAccessor.HttpContext.Response;
+            var response = _contextAccessor.HttpContext.Response;
             var request = _contextAccessor.HttpContext.Request;
 
             var requestUrl = request.GetDisplayUrl();
             var status = responseBody != null;
             var httpStatusCode = (HttpStatusCode)response.StatusCode;
-            if (!responseBody.TryParseJson<List<object>>(out List<object> data))
+            if (!responseBody.TryParseJson<List<T>>(out List<T> data))
             {
-                return new SuccessResponseWrapper( httpStatusCode, JsonConvert.DeserializeObject<object>(responseBody));
+                return new SuccessResponseWrapper<T>(httpStatusCode, JsonConvert.DeserializeObject<T>(responseBody));
             }
-           
+
 
             // NOTE: Add any further customizations if needed here
-            int? limit=null;
-            int offset=0;
+            int? limit = null;
+            int offset = 0;
             string sort = null;
             string route = request.Path.Value;
             var queryParams = request.Query;
-            if(queryParams.ContainsKey("limit"))
+            if (queryParams.ContainsKey("limit"))
                 limit = int.Parse(queryParams["limit"]);
 
             if (queryParams.ContainsKey("offset"))
@@ -49,23 +50,28 @@ namespace Global.ExceptionHandler.ResponseWrapper.Services
 
             if (queryParams.ContainsKey("sort"))
                 sort = queryParams["sort"];
-         
+
             var validFilter = new PaginationFilter(limit, offset);
-            if (!validFilter.Pageable || validFilter.PageSize==0)
-                return new SuccessResponseWrapper( httpStatusCode, JsonConvert.DeserializeObject<object>(responseBody));
+            if (!validFilter.Pageable || validFilter.PageSize == 0)
+                return new SuccessResponseWrapper<T>(httpStatusCode, JsonConvert.DeserializeObject<T>(responseBody));
             else
             {
                 var totalRecords = data.Count();
                 if (totalRecords == 0)
-                    return new SuccessResponseWrapper(httpStatusCode, data);
+                {
+                    var row = JsonConvert.SerializeObject(data);
+                    return new SuccessResponseWrapper<T>(httpStatusCode, JsonConvert.DeserializeObject<T>(row));
+                }
+                  
                 data = data
               .Skip((validFilter.PageNumber - 1) * validFilter.PageSize)
                .Take(validFilter.PageSize)
               .ToList();
-          
-               
-                var pagedResponse = new PagedResponseWrapper(data, validFilter.PageNumber, validFilter.PageSize);
-             
+
+
+                var pagedRow = JsonConvert.SerializeObject(data);
+                var pagedResponse = new PagedResponseWrapper<T>(JsonConvert.DeserializeObject<T>(pagedRow), validFilter.PageNumber, validFilter.PageSize);
+
                 var totalPages = ((double)totalRecords / (double)validFilter.PageSize);
                 var lastOffset = ((int)totalRecords - validFilter.Limit);
                 int roundedTotalPages = Convert.ToInt32(Math.Ceiling(totalPages));
@@ -87,14 +93,13 @@ namespace Global.ExceptionHandler.ResponseWrapper.Services
 
         }
 
-        public SuccessResponseWrapper WrapResponse(string responseBody)
+        public SuccessResponseWrapper<T> WrapResponse(string responseBody)
         {
             var response = _contextAccessor.HttpContext.Response;
             var status = responseBody != null;
             var httpStatusCode = (HttpStatusCode)response.StatusCode;
-            return new SuccessResponseWrapper(httpStatusCode, JsonConvert.DeserializeObject<object>(responseBody));
+            return new SuccessResponseWrapper<T>(httpStatusCode, JsonConvert.DeserializeObject<T>(responseBody));
         }
 
-   
     }
 }

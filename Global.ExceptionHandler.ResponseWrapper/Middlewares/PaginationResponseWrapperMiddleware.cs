@@ -14,7 +14,7 @@ namespace Global.ExceptionHandler.ResponseWrapper.Middleware
         /// Request Delegate field to invoke HTTP Context
         /// </summary>
         private readonly RequestDelegate _next;
-        private IResponseWrapperService _wrapperService;
+        private IResponseWrapperService<object> _wrapperService;
         /// <summary>
         /// The Response Wrapper Middleware Constructor
         /// </summary>
@@ -27,7 +27,7 @@ namespace Global.ExceptionHandler.ResponseWrapper.Middleware
         /// <param name="context">The HTTP Context</param>
         /// <param name="wrapperService">The Wrapper Service to return custom response (paginated response or simple response)</param>
         /// <returns>Response</returns>
-        public async Task Invoke(HttpContext context, IResponseWrapperService wrapperService)
+        public async Task Invoke(HttpContext context, IResponseWrapperService<object> wrapperService)
         {
             _wrapperService = wrapperService;
 
