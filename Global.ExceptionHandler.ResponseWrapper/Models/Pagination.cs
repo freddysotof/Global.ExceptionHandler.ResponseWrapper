@@ -6,20 +6,18 @@ using System.Threading.Tasks;
 
 namespace Global.ExceptionHandler.ResponseWrapper.Models
 {
-    public class PaginationFilter
+    public class Pagination:PaginationOption
     {
-        public int? Limit { get; set; }
-        public int Offset { get; set; }
         public int PageSize { get => (int)Limit; }
         public int PageNumber { get => (int)Math.Ceiling(Offset == 0 ? 1 : (decimal)(Offset + (int)Limit) / (int)Limit); }
         //public int PageNumber { get => Math.Ceiling(Offset==0 ? 1 : ((Offset + Limit) / Limit))); }
         public bool Pageable { get => Limit.HasValue; }
-        public PaginationFilter()
+        public Pagination()
         {
             Limit = 10;
             Offset = 0;
         }
-        public PaginationFilter(int? limit, int? offset = 0)
+        public Pagination(int? limit, int? offset = 0)
         {
             Limit = limit;
             Offset = offset ?? 0;

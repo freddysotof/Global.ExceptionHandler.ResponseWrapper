@@ -10,7 +10,7 @@ namespace Global.ExceptionHandler.ResponseWrapper.Services
 {
     public interface IPageUriService
     {
-        public Uri GetPageUri(PaginationFilter filter, string route);
+        public Uri GetPageUri(Pagination filter, string route);
     }
     public class PageUriService : IPageUriService
     {
@@ -19,7 +19,7 @@ namespace Global.ExceptionHandler.ResponseWrapper.Services
         {
             _baseUri = baseUri;
         }
-        public Uri GetPageUri(PaginationFilter filter, string route)
+        public Uri GetPageUri(Pagination filter, string route)
         {
             var _enpointUri = new Uri(string.Concat(_baseUri, route));
             var modifiedUri = QueryHelpers.AddQueryString(_enpointUri.ToString(), "limit", filter.Limit?.ToString());

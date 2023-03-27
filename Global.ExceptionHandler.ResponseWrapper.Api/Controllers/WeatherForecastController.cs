@@ -25,7 +25,7 @@ namespace Global.ExceptionHandler.ResponseWrapper.Api.Controllers
         /// </summary>
         /// <returns>Weather Forecast Array</returns>
         [HttpGet(Name = "GetWeatherForecasts")]
-        public IActionResult Get([FromQuery] int? limit, int offset = 0)
+        public IActionResult Get([FromQuery] PaginationOption paginationOption)
         {
             var result = Enumerable.Range(1, 10).Select(index => new WeatherForecast
             {
@@ -71,10 +71,7 @@ namespace Global.ExceptionHandler.ResponseWrapper.Api.Controllers
         [HttpPut("{id:int}")]
         public IActionResult Update(int id)
         {
-            throw new BadRequestException($"A product from the database with ID: {id} could not be found.", new List<ResponseError>()
-        {
-            new ResponseError("Error #1")
-        });
+            throw new BadRequestException($"A product from the database with ID: {id} could not be found.");
 
 
         }

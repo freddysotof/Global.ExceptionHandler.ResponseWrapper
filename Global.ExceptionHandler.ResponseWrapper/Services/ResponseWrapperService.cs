@@ -51,7 +51,7 @@ namespace Global.ExceptionHandler.ResponseWrapper.Services
             if (queryParams.ContainsKey("sort"))
                 sort = queryParams["sort"];
 
-            var validFilter = new PaginationFilter(limit, offset);
+            var validFilter = new Pagination(limit, offset);
             if (!validFilter.Pageable || validFilter.PageSize == 0)
                 return new SuccessResponseWrapper<T>(httpStatusCode, JsonConvert.DeserializeObject<T>(responseBody));
             else
@@ -77,14 +77,14 @@ namespace Global.ExceptionHandler.ResponseWrapper.Services
                 int roundedTotalPages = Convert.ToInt32(Math.Ceiling(totalPages));
                 pagedResponse.NextPage =
                     validFilter.PageNumber >= 1 && validFilter.PageNumber < roundedTotalPages
-                    ? _pageUriService.GetPageUri(new PaginationFilter(validFilter.Limit, validFilter.Offset + validFilter.Limit), route)
+                    ? _pageUriService.GetPageUri(new Pagination(validFilter.Limit, validFilter.Offset + validFilter.Limit), route)
                     : null;
                 pagedResponse.PreviousPage =
                     validFilter.PageNumber - 1 >= 1 && validFilter.PageNumber <= roundedTotalPages
-                    ? _pageUriService.GetPageUri(new PaginationFilter(validFilter.Limit, validFilter.Offset - validFilter.Limit), route)
+                    ? _pageUriService.GetPageUri(new Pagination(validFilter.Limit, validFilter.Offset - validFilter.Limit), route)
                     : null;
-                pagedResponse.FirstPage = _pageUriService.GetPageUri(new PaginationFilter(validFilter.Limit, 0), route);
-                pagedResponse.LastPage = _pageUriService.GetPageUri(new PaginationFilter(validFilter.Limit, lastOffset), route);
+                pagedResponse.FirstPage = _pageUriService.GetPageUri(new Pagination(validFilter.Limit, 0), route);
+                pagedResponse.LastPage = _pageUriService.GetPageUri(new Pagination(validFilter.Limit, lastOffset), route);
                 pagedResponse.TotalPages = roundedTotalPages;
                 pagedResponse.TotalRecords = totalRecords;
                 return pagedResponse;
